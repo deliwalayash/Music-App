@@ -1,0 +1,225 @@
+:root {
+    --bg-color: #0f172a; /* Deep modern dark blue/black */
+    --surface-color: #1e293b;
+    --surface-hover: #334155;
+    --primary-color: #10b981; /* Neon green for workout */
+    --primary-glow: rgba(16, 185, 129, 0.4);
+    --secondary-color: #3b82f6; /* Cool blue for rest */
+    --secondary-glow: rgba(59, 130, 246, 0.4);
+    --danger-color: #ef4444; /* Red for stop/danger */
+    --danger-glow: rgba(239, 68, 68, 0.4);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --font-family: 'Outfit', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: var(--font-family);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 400px; /* Mobile width optimized */
+    background-color: var(--surface-color);
+    border-radius: 24px;
+    padding: 32px 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+header {
+    text-align: center;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+.status-indicator {
+    font-size: 1.25rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    transition: color 0.3s ease;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    align-items: center;
+}
+
+.timer-display {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring__path {
+    transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
+    filter: drop-shadow(0 0 8px var(--primary-glow));
+}
+
+.time-text-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.time-text {
+    font-size: 4rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums; /* Monospace numbers */
+}
+
+.controls-section {
+    width: 100%;
+    display: flex;
+    gap: 16px;
+}
+
+.input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.input-group input {
+    background-color: var(--bg-color);
+    border: 1px solid var(--surface-hover);
+    color: var(--text-main);
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 1.25rem;
+    font-weight: 500;
+    text-align: center;
+    font-family: var(--font-family);
+    transition: border-color 0.2s;
+    outline: none;
+    width: 100%;
+}
+
+.input-group input:focus {
+    border-color: var(--primary-color);
+}
+
+.action-buttons {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    border: none;
+    font-size: 1.125rem;
+    font-weight: 700;
+    font-family: var(--font-family);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 1px;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.start-btn {
+    background-color: var(--primary-color);
+    color: var(--bg-color);
+    box-shadow: 0 4px 15px var(--primary-glow);
+}
+
+.start-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--primary-glow);
+    background-color: #12cc8f;
+}
+
+.start-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.stop-btn {
+    background-color: transparent;
+    color: var(--danger-color);
+    border: 2px solid var(--danger-color);
+}
+
+.stop-btn:hover:not(:disabled) {
+    background-color: var(--danger-color);
+    color: var(--text-main);
+    box-shadow: 0 4px 15px var(--danger-glow);
+}
+
+/* Responsiveness for very small screens */
+@media (max-width: 360px) {
+    .app-container {
+        padding: 24px 16px;
+        border-radius: 0;
+        height: 100vh;
+        justify-content: center;
+    }
+    
+    .timer-display {
+        width: 240px;
+        height: 240px;
+    }
+    
+    .progress-ring {
+        width: 240px;
+        height: 240px;
+    }
+    
+    .progress-ring__circle, .progress-ring__path {
+        cx: 120;
+        cy: 120;
+        r: 100;
+    }
+    
+    .time-text {
+        font-size: 3.5rem;
+    }
+}

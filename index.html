@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Timer App</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Gym Timer</h1>
+            <div class="status-indicator" id="statusText">IDLE</div>
+        </header>
+
+        <main>
+            <div class="timer-display" id="timerDisplay">
+                <svg class="progress-ring" width="280" height="280">
+                    <circle class="progress-ring__circle" stroke="var(--surface-color)" stroke-width="12"
+                        fill="transparent" r="120" cx="140" cy="140" />
+                    <circle class="progress-ring__path" id="progressPath" stroke="var(--primary-color)"
+                        stroke-width="12" fill="transparent" r="120" cx="140" cy="140" />
+                </svg>
+                <div class="time-text-container">
+                    <div class="time-text" id="timeText">00:00</div>
+                </div>
+            </div>
+
+            <div class="controls-section">
+                <div class="input-group">
+                    <label for="exerciseTime">Exercise (sec)</label>
+                    <input type="number" id="exerciseTime" value="30" min="1">
+                </div>
+                <div class="input-group">
+                    <label for="gapTime">Rest Gap (sec)</label>
+                    <input type="number" id="gapTime" value="10" min="1">
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn start-btn" id="startBtn">START WORKOUT</button>
+                <button class="btn stop-btn" id="stopBtn" disabled>STOP</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="relaxAudio" src="audio/RELAX.wav" preload="auto"></audio>
+    <audio id="exAudio1" src="audio/hitslab-sport-gym-workout-music-333740.mp3" preload="auto"></audio>
+    <audio id="exAudio2" src="audio/mfcc-gym-workout-sport-music-412786.mp3" preload="auto"></audio>
+    <audio id="exAudio3" src="audio/the_mountain-gym-199166.mp3" preload="auto"></audio>
+    <audio id="exAudio4" src="audio/delosound-energetic-sports-442840.mp3" preload="auto"></audio>
+    <audio id="exAudio5" src="audio/paulyudin-sport-sport-music-490393.mp3" preload="auto"></audio>
+    <audio id="exAudio6" src="audio/watermello-sport-sport-music-477142.mp3" preload="auto"></audio>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
