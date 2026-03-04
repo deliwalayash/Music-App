@@ -9,6 +9,7 @@ const UI = {
 };
 
 const AudioElements = {
+    silent: document.getElementById('silentAudio'),
     relax: document.getElementById('relaxAudio'),
     exercise: [
         document.getElementById('exAudio1'),
@@ -21,10 +22,31 @@ const AudioElements = {
 };
 
 let state = 'IDLE'; // IDLE, EXERCISE, GAP
-let currentInterval = null;
 let remainingTime = 0;
 let totalPhaseTime = 0;
+let phaseEndTime = 0;
 let currentAudio = null;
+
+// Web Worker for background ticking
+const workerCode = `
+    let timerId = null;
+    self.onmessage = function(e) {
+        if (e.data === 'start') {
+            if (!timerId) timerId = setInterval(() => self.postMessage('tick'), 200);
+        } else if (e.data === 'stop') {
+            if (timerId) clearInterval(timerId);
+            timerId = null;
+        }
+    };
+`;
+const blob = new Blob([workerCode], { type: 'application/javascript' });
+const timerWorker = new Worker(URL.createObjectURL(blob));
+
+timerWorker.onmessage = function (e) {
+    if (e.data === 'tick') {
+        tick();
+    }
+};
 
 // Initialize circle logic
 const radius = UI.progressPath.r.baseVal.value;
@@ -85,10 +107,16 @@ function playRelaxAudio() {
 }
 
 function tick() {
+    if (state === 'IDLE') return;
+
+    let now = Date.now();
+    remainingTime = Math.ceil((phaseEndTime - now) / 1000);
+
     if (remainingTime > 0) {
-        remainingTime--;
         updateDisplay();
     } else {
+        remainingTime = 0;
+        updateDisplay();
         switchPhase();
     }
 }
@@ -105,6 +133,7 @@ function switchPhase() {
 
         remainingTime = parseInt(UI.gapInput.value) || 10;
         totalPhaseTime = remainingTime;
+        phaseEndTime = Date.now() + remainingTime * 1000;
 
         playRelaxAudio();
 
@@ -119,6 +148,7 @@ function switchPhase() {
 
         remainingTime = parseInt(UI.exerciseInput.value) || 30;
         totalPhaseTime = remainingTime;
+        phaseEndTime = Date.now() + remainingTime * 1000;
 
         playRandomExerciseAudio();
     }
@@ -131,6 +161,7 @@ function unlockAudio() {
     if (audioUnlocked) return;
 
     // Play and immediately pause to unlock audio on mobile
+    if (AudioElements.silent) AudioElements.silent.play().catch(() => { });
     AudioElements.relax.play().catch(() => { });
     AudioElements.relax.pause();
     AudioElements.relax.currentTime = 0;
@@ -164,15 +195,16 @@ UI.startBtn.addEventListener('click', () => {
 
     remainingTime = parseInt(UI.exerciseInput.value) || 30;
     totalPhaseTime = remainingTime;
+    phaseEndTime = Date.now() + remainingTime * 1000;
 
     updateDisplay();
     playRandomExerciseAudio();
 
-    currentInterval = setInterval(tick, 1000);
+    timerWorker.postMessage('start');
 });
 
 UI.stopBtn.addEventListener('click', () => {
-    if (currentInterval) clearInterval(currentInterval);
+    timerWorker.postMessage('stop');
     state = 'IDLE';
 
     UI.statusText.textContent = 'IDLE';
