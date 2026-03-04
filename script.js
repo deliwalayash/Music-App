@@ -125,8 +125,30 @@ function switchPhase() {
     updateDisplay();
 }
 
+let audioUnlocked = false;
+
+function unlockAudio() {
+    if (audioUnlocked) return;
+
+    // Play and immediately pause to unlock audio on mobile
+    AudioElements.relax.play().catch(() => { });
+    AudioElements.relax.pause();
+    AudioElements.relax.currentTime = 0;
+
+    AudioElements.exercise.forEach(a => {
+        a.play().catch(() => { });
+        a.pause();
+        a.currentTime = 0;
+    });
+
+    audioUnlocked = true;
+}
+
 UI.startBtn.addEventListener('click', () => {
     if (state !== 'IDLE') return; // Prevent multiple starts
+
+    // Unlock audio elements to allow programmatic playback on mobile
+    unlockAudio();
 
     state = 'EXERCISE';
     UI.statusText.textContent = 'WORKOUT';
