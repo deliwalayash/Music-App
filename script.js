@@ -27,6 +27,66 @@ let totalPhaseTime = 0;
 let phaseEndTime = 0;
 let currentAudio = null;
 
+// Persist state to localStorage
+function saveState() {
+    if (state === 'IDLE') {
+        localStorage.removeItem('gymTimerState');
+        return;
+    }
+    localStorage.setItem('gymTimerState', JSON.stringify({
+        state,
+        phaseEndTime,
+        totalPhaseTime,
+        exerciseTime: UI.exerciseInput.value,
+        gapTime: UI.gapInput.value
+    }));
+}
+
+// Load state on startup
+function loadState() {
+    const saved = localStorage.getItem('gymTimerState');
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            const now = Date.now();
+
+            // If timer was active and hasn't completely expired yet (giving a few minutes leeway for missed intervals)
+            if (parsed.state !== 'IDLE' && parsed.phaseEndTime > now - 5000) {
+                state = parsed.state;
+                totalPhaseTime = parsed.totalPhaseTime;
+                phaseEndTime = parsed.phaseEndTime;
+                UI.exerciseInput.value = parsed.exerciseTime;
+                UI.gapInput.value = parsed.gapTime;
+
+                UI.startBtn.disabled = true;
+                UI.stopBtn.disabled = false;
+                UI.exerciseInput.disabled = true;
+                UI.gapInput.disabled = true;
+
+                if (state === 'EXERCISE') {
+                    UI.statusText.textContent = 'WORKOUT';
+                    document.documentElement.style.setProperty('--primary-color', '#10b981');
+                    document.documentElement.style.setProperty('--primary-glow', 'rgba(16, 185, 129, 0.4)');
+                } else if (state === 'GAP') {
+                    UI.statusText.textContent = 'REST';
+                    document.documentElement.style.setProperty('--primary-color', '#3b82f6');
+                    document.documentElement.style.setProperty('--primary-glow', 'rgba(59, 130, 246, 0.4)');
+                }
+
+                timerWorker.postMessage('start');
+                updateDisplay();
+                // Note: Can't automatically play audio here without user interaction due to browser policies.
+                // It will play on the next phase switch, or we could require a click to resume fully.
+            } else {
+                localStorage.removeItem('gymTimerState');
+            }
+        } catch (e) {
+            console.error(e);
+            localStorage.removeItem('gymTimerState');
+        }
+    }
+}
+
 // Web Worker for background ticking
 const workerCode = `
     let timerId = null;
@@ -153,6 +213,7 @@ function switchPhase() {
         playRandomExerciseAudio();
     }
     updateDisplay();
+    saveState();
 }
 
 let audioUnlocked = false;
@@ -201,6 +262,7 @@ UI.startBtn.addEventListener('click', () => {
     playRandomExerciseAudio();
 
     timerWorker.postMessage('start');
+    saveState();
 });
 
 UI.stopBtn.addEventListener('click', () => {
@@ -222,4 +284,8 @@ UI.stopBtn.addEventListener('click', () => {
     UI.gapInput.disabled = false;
 
     stopAllAudio();
+    saveState();
 });
+
+// Initialize from localStorage if exists
+loadState();
